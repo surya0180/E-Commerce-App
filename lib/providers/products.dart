@@ -8,6 +8,9 @@ import 'package:http/http.dart' as http;
 
 class Products with ChangeNotifier {
   List<Product> _loadedProducts = [];
+  final String authToken;
+
+  Products(this.authToken, this._loadedProducts);
 
   List<Product> get items {
     return [..._loadedProducts];
@@ -25,6 +28,7 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'shopping-application-a7da5-default-rtdb.firebaseio.com',
       '/products.json',
+      {'auth': '$authToken'},
     );
 
     try {
@@ -63,6 +67,7 @@ class Products with ChangeNotifier {
       final url = Uri.https(
         'shopping-application-a7da5-default-rtdb.firebaseio.com',
         '/products/$id.json',
+      {'auth': '$authToken'},
       );
       await http.patch(url,
           body: json.encode({
@@ -82,6 +87,7 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'shopping-application-a7da5-default-rtdb.firebaseio.com',
       '/products/$id.json',
+      {'auth': '$authToken'},
     );
 
     final existingProductIndex =
@@ -106,6 +112,7 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'shopping-application-a7da5-default-rtdb.firebaseio.com',
       '/products.json',
+      {'auth': '$authToken'},
     );
     try {
       final response = await http.get(url);
