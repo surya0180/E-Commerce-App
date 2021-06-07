@@ -9,8 +9,9 @@ import 'package:http/http.dart' as http;
 class Products with ChangeNotifier {
   List<Product> _loadedProducts = [];
   final String authToken;
+  final String userId;
 
-  Products(this.authToken, this._loadedProducts);
+  Products(this.authToken, this._loadedProducts, this.userId);
 
   List<Product> get items {
     return [..._loadedProducts];
@@ -40,7 +41,6 @@ class Products with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFavorite': product.isFavorite,
           },
         ),
       );
@@ -67,7 +67,7 @@ class Products with ChangeNotifier {
       final url = Uri.https(
         'shopping-application-a7da5-default-rtdb.firebaseio.com',
         '/products/$id.json',
-      {'auth': '$authToken'},
+        {'auth': '$authToken'},
       );
       await http.patch(url,
           body: json.encode({
@@ -109,7 +109,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.https(
+    var url = Uri.https(
       'shopping-application-a7da5-default-rtdb.firebaseio.com',
       '/products.json',
       {'auth': '$authToken'},
@@ -120,6 +120,16 @@ class Products with ChangeNotifier {
       if (extractedData == null) {
         return;
       }
+
+      url = Uri.https(
+        'shopping-application-a7da5-default-rtdb.firebaseio.com',
+        '/userFavorites/$userId.json',
+        {'auth': '$authToken'},
+      );
+
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
+
       final List<Product> tempList = [];
       extractedData.forEach((prodId, prodData) {
         tempList.add(
@@ -129,7 +139,8 @@ class Products with ChangeNotifier {
             imageUrl: prodData['imageUrl'],
             price: prodData['price'],
             title: prodData['title'],
-            isFavorite: prodData['isFavorite'],
+            isFavorite:
+                favoriteData == null ? false : favoriteData[prodId] ?? false,
           ),
         );
       });
