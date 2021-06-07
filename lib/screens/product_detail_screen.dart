@@ -20,9 +20,12 @@ class ProductDetailsScreen extends StatelessWidget {
           children: <Widget>[
             Container(
               height: 300,
-              child: Image.network(
-                loadedProduct.imageUrl,
-                fit: BoxFit.cover,
+              child: Hero(
+                tag: loadedProduct.id,
+                child: Image.network(
+                  loadedProduct.imageUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
               width: double.infinity,
             ),
