@@ -41,6 +41,7 @@ class Products with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
+            'creatorId': userId,
           },
         ),
       );
@@ -108,11 +109,23 @@ class Products with ChangeNotifier {
     existingProduct = null;
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    var _params = {
+      'auth': '$authToken',
+    };
+
+    if (filterByUser) {
+      _params = {
+        'auth': '$authToken',
+        'orderBy': json.encode('creatorId'),
+        'equalTo': json.encode(userId),
+      };
+    }
+
     var url = Uri.https(
       'shopping-application-a7da5-default-rtdb.firebaseio.com',
       '/products.json',
-      {'auth': '$authToken'},
+      _params,
     );
     try {
       final response = await http.get(url);
